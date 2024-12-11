@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Analysis</title>
+    {% csrf_token %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#0ea5e9',
+                            600: '#0284c7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .btn-primary {
+            @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors;
+        }
+        .btn-secondary {
+            @apply px-4 py-2 bg-white text-primary-500 border border-primary-500 rounded-lg hover:bg-primary-50 transition-colors;
+        }
+        .card {
+            @apply bg-white p-6 rounded-lg shadow-lg;
+        }
+        #video {
+            @apply bg-gray-100 w-full h-[400px] object-cover;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Logout Button -->
+    <div class="absolute top-4 right-4">
+        <a href="/auth/logout/" class="btn-secondary flex items-center gap-2">
+            <i class="ph ph-sign-out"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Face Analysis</h1>
+            <p class="text-gray-600">Real-time face detection with age, gender, and emotion analysis</p>
+        </div>
+
+        <!-- Detection Options -->
+        <div class="flex justify-center space-x-4 mb-8">
+            <button id="emotionToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                <i class="ph ph-smiley"></i>
+                <span>Emotion</span>
+            </button>
+            <button id="genderToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                <i class="ph ph-gender-intersex"></i>
+                <span>Gender</span>
+            </button>
+            <button id="ageToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                <i class="ph ph-user"></i>
+                <span>Age</span>
+            </button>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Video Feed Section -->
+            <div class="card">
+                <div class="relative">
+                    <video id="video" class="w-full rounded-lg"></video>
+                    <canvas id="canvas" class="hidden"></canvas>
+                    <div id="loading" class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                        <div class="text-white text-center">
+                            <i class="ph ph-circle-notch text-4xl animate-spin"></i>
+                            <p class="mt-2">Analyzing...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-center gap-4">
+                    <button id="captureBtn" class="btn-primary flex items-center gap-2">
+                        <i class="ph ph-camera"></i>
+                        Capture and Analyze
+                    </button>
+                    <button id="toggleBtn" class="btn-primary flex items-center gap-2">
+                        <i class="ph ph-video-camera"></i>
+                        Toggle Camera
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="card hidden">
+                <h2 class="text-2xl font-semibold mb-6">Analysis Results</h2>
+                
+                <!-- Age and Gender -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 mb-1">Age Range</p>
+                        <p id="age" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 mb-1">Gender</p>
+                        <p id="gender" class="text-2xl font-bold text-gray-900">-</p>
+                    </div>
+                </div>
+                
+                <!-- Dominant Emotion -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-2">Dominant Emotion</h3>
+                    <p id="emotion" class="text-xl font-bold text-primary-600">-</p>
+                </div>
+                
+                <!-- Emotion Scores -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Emotion Distribution</h3>
+                    <div id="emotionScores" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stream = null;
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        
+        // Initialize detection options
+        const detectionOptions = {
+            emotion: true,
+            gender: true,
+            age: true
+        };
+
+        function toggleDetection(type) {
+            const button = document.getElementById(`${type}Toggle`);
+            detectionOptions[type] = !detectionOptions[type];
+            button.classList.toggle('bg-primary-500');
+            button.classList.toggle('bg-gray-300');
+        }
+
+        // Add click handlers to toggle buttons
+        ['emotion', 'gender', 'age'].forEach(type => {
+            document.getElementById(`${type}Toggle`).addEventListener('click', () => toggleDetection(type));
+        });
+
+        async function startVideo() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                await video.play();
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                alert('Could not access the camera. Please ensure you have granted camera permissions.');
+            }
+        }
+
+        function stopVideo() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (stream) {
+                stopVideo();
+            } else {
+                startVideo();
+            }
+        });
+
+        captureBtn.addEventListener('click', async () => {
+            if (!stream) {
+                alert('Please enable the camera first');
+                return;
+            }
+
+            // Set up canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Flip the image horizontally if needed (mirror effect)
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Show loading state
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                // Convert canvas to blob
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                
+                // Create form data with detection options
+                const formData = new FormData();
+                formData.append('image', blob, 'capture.jpg');
+                formData.append('detect_emotion', detectionOptions.emotion);
+                formData.append('detect_gender', detectionOptions.gender);
+                formData.append('detect_age', detectionOptions.age);
+
+                // Send to backend
+                const response = await fetch('/face/analyze/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                results.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Failed to analyze image. Please try again.');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+
+        function displayResults(data) {
+            // Handle potential errors
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            // Check if we have faces data
+            if (!Array.isArray(data.faces) || data.faces.length === 0) {
+                alert('No faces detected');
+                return;
+            }
+
+            // Use the first face for now
+            const faceData = data.faces[0];
+
+            // Display age result if available
+            const ageElement = document.getElementById('age');
+            if (detectionOptions.age && faceData.age) {
+                ageElement.textContent = faceData.age;
+            } else {
+                ageElement.textContent = '-';
+            }
+
+            // Display gender result if available
+            const genderElement = document.getElementById('gender');
+            if (detectionOptions.gender && faceData.gender) {
+                genderElement.textContent = faceData.gender;
+            } else {
+                genderElement.textContent = '-';
+            }
+
+            // Display emotion result if available
+            const emotionElement = document.getElementById('emotion');
+            if (detectionOptions.emotion && faceData.emotion) {
+                emotionElement.textContent = faceData.emotion;
+            } else {
+                emotionElement.textContent = '-';
+            }
+        }
+
+        // Start video on page load
+        startVideo();
+    </script>
+</body>
+</html>
