@@ -31,7 +31,7 @@
         .card {
             @apply bg-white p-6 rounded-lg shadow-lg;
         }
-        #video {
+        #videoElement {
             @apply bg-gray-100 w-full h-[400px] object-cover;
         }
     </style>
@@ -71,7 +71,7 @@
             <!-- Video Feed Section -->
             <div class="card">
                 <div class="relative">
-                    <video id="video" class="w-full rounded-lg"></video>
+                    <video id="videoElement" class="w-full rounded-lg"></video>
                     <canvas id="canvas" class="hidden"></canvas>
                     <div id="loading" class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
                         <div class="text-white text-center">
@@ -85,7 +85,7 @@
                         <i class="ph ph-camera"></i>
                         Capture and Analyze
                     </button>
-                    <button id="toggleBtn" class="btn-primary flex items-center gap-2">
+                    <button id="toggleVideo" class="btn-primary flex items-center gap-2">
                         <i class="ph ph-video-camera"></i>
                         Toggle Camera
                     </button>
@@ -124,32 +124,36 @@
     </div>
 
     <script>
-        let stream = null;
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const captureBtn = document.getElementById('captureBtn');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const loading = document.getElementById('loading');
-        const results = document.getElementById('results');
-        
-        // Initialize detection options
-        const detectionOptions = {
+        let detectionOptions = {
             emotion: true,
             gender: true,
             age: true
         };
 
         function toggleDetection(type) {
-            const button = document.getElementById(`${type}Toggle`);
             detectionOptions[type] = !detectionOptions[type];
-            button.classList.toggle('bg-primary-500');
-            button.classList.toggle('bg-gray-300');
+            const button = document.getElementById(`${type}Toggle`);
+            if (detectionOptions[type]) {
+                button.classList.remove('bg-gray-200');
+                button.classList.add('bg-primary-500', 'text-white');
+            } else {
+                button.classList.remove('bg-primary-500', 'text-white');
+                button.classList.add('bg-gray-200');
+            }
         }
 
         // Add click handlers to toggle buttons
         ['emotion', 'gender', 'age'].forEach(type => {
             document.getElementById(`${type}Toggle`).addEventListener('click', () => toggleDetection(type));
         });
+
+        let stream = null;
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const toggleBtn = document.getElementById('toggleVideo');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
 
         async function startVideo() {
             try {
@@ -188,24 +192,19 @@
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            
-            // Flip the image horizontally if needed (mirror effect)
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-            ctx.restore();
+            ctx.drawImage(video, 0, 0);
 
             // Show loading state
             loading.classList.remove('hidden');
             results.classList.add('hidden');
 
             try {
-                // Convert canvas to blob
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                // Convert canvas to base64
+                const imageData = canvas.toDataURL('image/jpeg', 0.8);
                 
                 // Create form data with detection options
                 const formData = new FormData();
-                formData.append('image', blob, 'capture.jpg');
+                formData.append('image', imageData);
                 formData.append('detect_emotion', detectionOptions.emotion);
                 formData.append('detect_gender', detectionOptions.gender);
                 formData.append('detect_age', detectionOptions.age);
@@ -213,10 +212,14 @@
                 // Send to backend
                 const response = await fetch('/face/analyze/', {
                     method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
                     body: formData
                 });
 
-                if (!response.ok) {
+                const contentType = response.headers.get('content-type');
+                if (!response.ok || !contentType || !contentType.includes('application/json')) {
                     const errorText = await response.text();
                     throw new Error(`Server error: ${response.status} - ${errorText}`);
                 }
@@ -233,43 +236,48 @@
         });
 
         function displayResults(data) {
+            // Show results container
+            results.classList.remove('hidden');
+
             // Handle potential errors
             if (data.error) {
+                document.getElementById('age').textContent = '-';
+                document.getElementById('gender').textContent = '-';
+                document.getElementById('emotion').textContent = '-';
+                document.getElementById('emotionScores').innerHTML = '';
                 alert(data.error);
                 return;
             }
 
-            // Check if we have faces data
-            if (!Array.isArray(data.faces) || data.faces.length === 0) {
-                alert('No faces detected');
-                return;
-            }
+            // Display age result
+            document.getElementById('age').textContent = data.age || '-';
 
-            // Use the first face for now
-            const faceData = data.faces[0];
+            // Display gender result
+            document.getElementById('gender').textContent = data.gender || '-';
 
-            // Display age result if available
-            const ageElement = document.getElementById('age');
-            if (detectionOptions.age && faceData.age) {
-                ageElement.textContent = faceData.age;
+            // Display emotion result
+            if (data.emotion && data.emotion_scores) {
+                document.getElementById('emotion').textContent = data.emotion;
+                
+                // Display emotion scores
+                const scoresHtml = Object.entries(data.emotion_scores)
+                    .sort(([,a], [,b]) => b - a)
+                    .map(([emotion, score]) => `
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700">${emotion}</span>
+                            <div class="w-2/3">
+                                <div class="h-2 bg-gray-200 rounded">
+                                    <div class="h-2 bg-primary-500 rounded" 
+                                         style="width: ${score * 100}%"></div>
+                                </div>
+                            </div>
+                            <span class="text-gray-600 text-sm">${(score * 100).toFixed(1)}%</span>
+                        </div>
+                    `).join('');
+                document.getElementById('emotionScores').innerHTML = scoresHtml;
             } else {
-                ageElement.textContent = '-';
-            }
-
-            // Display gender result if available
-            const genderElement = document.getElementById('gender');
-            if (detectionOptions.gender && faceData.gender) {
-                genderElement.textContent = faceData.gender;
-            } else {
-                genderElement.textContent = '-';
-            }
-
-            // Display emotion result if available
-            const emotionElement = document.getElementById('emotion');
-            if (detectionOptions.emotion && faceData.emotion) {
-                emotionElement.textContent = faceData.emotion;
-            } else {
-                emotionElement.textContent = '-';
+                document.getElementById('emotion').textContent = '-';
+                document.getElementById('emotionScores').innerHTML = '';
             }
         }
 
