@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import cv2
-#import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import model_from_json
 import mediapipe as mp
@@ -11,45 +10,67 @@ import base64
 from PIL import Image
 import io
 import logging
+from functools import lru_cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
-# Initialize models
-# Load emotion model using the paths from the notebook
-with open(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.json', 'r') as json_file:
-    loaded_model_json = json_file.read()
-emotion_model = model_from_json(loaded_model_json)
-emotion_model.load_weights(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.weights.h5')
-
-# Load age and gender models using the paths from the notebook
-age_net = cv2.dnn.readNetFromCaffe(
-    r'C:\Users\Mongraal\Downloads\Documents\age_deploy.prototxt',
-    r'C:\Users\Mongraal\Downloads\Documents\age_net.caffemodel'
-)
-
-gender_net = cv2.dnn.readNetFromCaffe(
-    r'C:\Users\Mongraal\Downloads\Documents\gender_deploy.prototxt',
-    r'C:\Users\Mongraal\Downloads\Documents\gender_net.caffemodel'
-)
+logger = logging.getLogger(__name__)
 
 # Define labels
 gender_list = ['Male', 'Female']
 age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
-emotion_dict = {0: "Anger", 1: "Disgust", 2: "Fear", 3: "Happiness", 4: "Sadness", 5: "Surprise", 6: "Neutral"}
+emotion_dict = {0: "Surprise", 1: "Disgust", 2: "Fear", 3: "Happiness", 4: "Sadness", 5: "Anger", 6: "Neutral"}
 
 # Initialize MediaPipe FaceMesh
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh()
+face_mesh = mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=1,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
-logger = logging.getLogger(__name__)
+@lru_cache(maxsize=1)
+def load_models():
+    """Load models with caching to prevent repeated loading"""
+    try:
+        # Load emotion model
+        with open(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.json', 'r') as json_file:
+            loaded_model_json = json_file.read()
+        emotion_model = model_from_json(loaded_model_json)
+        emotion_model.load_weights(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.weights.h5')
+
+        # Load age and gender models
+        age_net = cv2.dnn.readNetFromCaffe(
+            r'C:\Users\Mongraal\Downloads\Documents\age_deploy.prototxt',
+            r'C:\Users\Mongraal\Downloads\Documents\age_net.caffemodel'
+        )
+
+        gender_net = cv2.dnn.readNetFromCaffe(
+            r'C:\Users\Mongraal\Downloads\Documents\gender_deploy.prototxt',
+            r'C:\Users\Mongraal\Downloads\Documents\gender_net.caffemodel'
+        )
+        
+        return emotion_model, age_net, gender_net
+    except Exception as e:
+        logger.error(f"Error loading models: {str(e)}")
+        return None, None, None
 
 def index(request):
     return render(request, 'face_analyzer/index.html')
+
+def home(request):
+    return render(request, 'face_analyzer/Home.html')
 
 @csrf_exempt
 def analyze_face(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+    
+    # Load models only when needed
+    emotion_model, age_net, gender_net = load_models()
+    if not all([emotion_model, age_net, gender_net]):
+        return JsonResponse({'error': 'Models not properly loaded. Please check server logs.'}, status=500)
     
     try:
         # Get the image data from the request
@@ -71,12 +92,18 @@ def analyze_face(request):
         # Process with MediaPipe
         results = face_mesh.process(cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB))
         
-        if not results.multi_face_landmarks:
-            return JsonResponse({'error': 'No face detected'}, status=400)
+        # Get detection options from request
+        detect_emotion = request.POST.get('detect_emotion', 'true').lower() == 'true'
+        detect_gender = request.POST.get('detect_gender', 'true').lower() == 'true'
+        detect_age = request.POST.get('detect_age', 'true').lower() == 'true'
+
+        # Initialize response data
+        face_data = {}
+
+        if results.multi_face_landmarks:
+            # Process the first detected face
+            face_landmarks = results.multi_face_landmarks[0]
             
-        # Process each detected face
-        faces_data = []
-        for face_landmarks in results.multi_face_landmarks:
             # Get face bounding box
             h, w = cv_image.shape[:2]
             x_min = w
@@ -93,53 +120,50 @@ def analyze_face(request):
             face_roi = cv_image[max(0, y_min-30):min(h, y_max+30),
                               max(0, x_min-30):min(w, x_max+30)]
             
-            if face_roi.size == 0:
-                continue
+            if face_roi.size > 0:
+                # Analyze emotion if enabled
+                if detect_emotion:
+                    try:
+                        emotion_roi = cv2.resize(face_roi, (224, 224))
+                        emotion_roi = emotion_roi / 255.0  # Normalize to [0,1]
+                        emotion_roi = np.expand_dims(emotion_roi, 0)
+                        emotion_prediction = emotion_model.predict(emotion_roi)
+                        emotion_label = emotion_dict[int(np.argmax(emotion_prediction[0]))]
+                        emotion_scores = {emotion_dict[i]: float(score) for i, score in enumerate(emotion_prediction[0])}
+                        face_data['emotion'] = emotion_label
+                        face_data['emotion_scores'] = emotion_scores
+                    except Exception as e:
+                        face_data['emotion_error'] = str(e)
                 
-            # Analyze emotion
-            emotion_roi = cv2.resize(face_roi, (224, 224))
-            emotion_roi = emotion_roi / 255.0  # Normalize to [0,1]
-            emotion_roi = np.expand_dims(emotion_roi, 0)
-            emotion_prediction = emotion_model.predict(emotion_roi)
-            emotion_label = emotion_dict[int(np.argmax(emotion_prediction[0]))]
+                # Analyze gender if enabled
+                if detect_gender:
+                    try:
+                        blob = cv2.dnn.blobFromImage(face_roi, 1.0, (227, 227),
+                                                   (78.4263377603, 87.7689143744, 114.895847746),
+                                                   swapRB=False)
+                        gender_net.setInput(blob)
+                        gender_preds = gender_net.forward()
+                        gender = gender_list[gender_preds[0].argmax()]
+                        face_data['gender'] = gender
+                    except Exception as e:
+                        face_data['gender_error'] = str(e)
+                
+                # Analyze age if enabled
+                if detect_age:
+                    try:
+                        blob = cv2.dnn.blobFromImage(face_roi, 1.0, (227, 227),
+                                                   (78.4263377603, 87.7689143744, 114.895847746),
+                                                   swapRB=False)
+                        age_net.setInput(blob)
+                        age_preds = age_net.forward()
+                        age = age_list[age_preds[0].argmax()]
+                        face_data['age'] = age
+                    except Exception as e:
+                        face_data['age_error'] = str(e)
             
-            # Create emotion scores dictionary
-            emotion_scores = {emotion_dict[i]: float(score) for i, score in enumerate(emotion_prediction[0])}
-            
-            # Analyze age and gender
-            blob = cv2.dnn.blobFromImage(face_roi, 1.0, (227, 227),
-                                       (78.4263377603, 87.7689143744, 114.895847746),
-                                       swapRB=False)
-            
-            # Gender prediction
-            gender_net.setInput(blob)
-            gender_preds = gender_net.forward()
-            gender = gender_list[gender_preds[0].argmax()]
-            
-            # Age prediction
-            age_net.setInput(blob)
-            age_preds = age_net.forward()
-            age = age_list[age_preds[0].argmax()]
-            
-            face_data = {
-                'emotion': emotion_label,
-                'emotion_scores': emotion_scores,
-                'gender': gender,
-                'age': age
-            }
-            faces_data.append(face_data)
-            
-        # Save image if user is authenticated
-        if request.user.is_authenticated:
-            # Save image to media storage
-            image_name = f'face_images/{request.user.username}_{len(faces_data)}_faces.jpg'
-            image_io = io.BytesIO()
-            image.save(image_io, format='JPEG')
-            image_content = ContentFile(image_io.getvalue())
-            saved_path = default_storage.save(image_name, image_content)
-            
-        # Return only the first face data since frontend expects single face
-        return JsonResponse(faces_data[0] if faces_data else {'error': 'No face detected'})
+            return JsonResponse(face_data)
+        else:
+            return JsonResponse({'error': 'No face detected'})
         
     except Exception as e:
         logger.error(f'Error in analyze_face: {str(e)}')

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoReco</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'face_analyzer/css/Home.css' %}">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EcoReco" class="logo-icon">
+          EcoReco 
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="{% url 'face_analyzer:index' %}">Facial Emotion Recognition</a></li>
+        <li><a href="#">Text & Voice Emotion Recognition</a></li>
+      </ul>
+      <div class="burger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Welcome to EcoReco</h1>
+      <p>Discover the power of emotion recognition through facial, text, and voice analysis.</p>
+    </section>
+
+    <section class="features">
+      <div class="feature">
+        <img src="{% static 'face_analyzer/images/facereco.jpg' %}" alt="Facial Emotion Recognition">
+        <h2>Facial Emotion Recognition</h2>
+        <p>Analyze emotions through facial expressions using advanced AI techniques.</p>
+        <a href="{% url 'face_analyzer:index' %}" class="cta">Get Started</a>
+      </div>
+      <div class="feature">
+        <img src="{% static 'face_analyzer/images/textreco.png' %}" alt="Text Emotion Recognition">
+        <h2>Text Emotion Recognition</h2>
+        <p>Interpret emotions in written content with cutting-edge sentiment analysis.</p>
+        <a href="#" class="cta">Explore Now</a>
+      </div>
+      <div class="feature">
+        <img src="{% static 'face_analyzer/images/voicereco.jpg' %}" alt="Voice Emotion Recognition">
+        <h2>Voice Emotion Recognition</h2>
+        <p>Detect emotions from voice intonations for a deeper understanding.</p>
+        <a href="#" class="cta">Learn More</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="contact">
+      <h3>Contact Us</h3>
+      <p>Email: contact@emoreco.com</p>
+      <p>Phone: +123 456 7890</p>
+    </div>
+    <div class="follow">
+      <h3>Follow Us</h3>
+      <div class="social-links">
+        <a href="#"><img src="{% static 'face_analyzer/images/facebook.png' %}" alt="Facebook"></a>
+        <a href="#"><img src="{% static 'face_analyzer/images/gmail.png' %}" alt="Gmail"></a>
+        <a href="#"><img src="{% static 'face_analyzer/images/linkedin.png' %}" alt="LinkedIn"></a>
+      </div>
+    </div>
+    <div class="resources">
+      <h3>Resources</h3>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">API Reference</a></li>
+        <li><a href="#">Support</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="{% static 'face_analyzer/js/script.js' %}"></script>
+</body>
+</html>

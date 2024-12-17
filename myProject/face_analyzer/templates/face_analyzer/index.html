@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Analysis</title>
+    {% load static %}
     {% csrf_token %}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="{% static 'face_analyzer/css/stylesss.css' %}">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -25,55 +29,261 @@
         .btn-primary {
             @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors;
         }
+
         .btn-secondary {
             @apply px-4 py-2 bg-white text-primary-500 border border-primary-500 rounded-lg hover:bg-primary-50 transition-colors;
         }
+
         .card {
-            @apply bg-white p-6 rounded-lg shadow-lg;
+            @apply bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-lg dark:bg-gray-800/90;
         }
+
         #videoElement {
-            @apply bg-gray-100 w-full h-[400px] object-cover;
+            @apply bg-gray-100 w-full h-[400px] object-cover dark:bg-gray-900;
+        }
+
+        /* AI Background Animation */
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        body {
+            position: relative;
+            background: linear-gradient(135deg,
+                    rgba(14, 165, 233, 0.05),
+                    rgba(2, 132, 199, 0.05),
+                    rgba(14, 165, 233, 0.1));
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            opacity: 0.4;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 1%, transparent 15%),
+                radial-gradient(circle at 75% 75%, rgba(2, 132, 199, 0.1) 1%, transparent 15%),
+                radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.1) 1%, transparent 25%);
+            background-size: 100px 100px;
+            pointer-events: none;
+        }
+
+        .dark body {
+            background: linear-gradient(135deg,
+                    rgba(14, 165, 233, 0.1),
+                    rgba(2, 132, 199, 0.1),
+                    rgba(14, 165, 233, 0.15));
+        }
+
+        .dark body::before {
+            opacity: 0.2;
+        }
+
+        /* Navigation styles */
+        header {
+            background-color: white;
+            color: #333;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-evenly;
+            /* Keeping the original spacing */
+            align-items: center;
+            padding: 0 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo a {
+            color: #333;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+            /* Keeping the original spacing */
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #4CAF50;
+        }
+
+        /* Burger Menu Styles */
+        .burger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 21px;
+        }
+
+        .burger div {
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                background-color: #fff;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links li {
+                margin: 15px 0;
+                text-align: center;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .burger {
+                display: flex;
+            }
+
+            .burger.toggle .line1 {
+                transform: rotate(-45deg) translate(-5px, 6px);
+            }
+
+            .burger.toggle .line2 {
+                opacity: 0;
+            }
+
+            .burger.toggle .line3 {
+                transform: rotate(45deg) translate(-5px, -6px);
+            }
+        }
+
+        .burger {
+            display: none;
+            cursor: pointer;
+        }
+
+        .burger div {
+            width: 25px;
+            height: 3px;
+            background-color: #333;
+            margin: 5px;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <!-- Logout Button -->
-    <div class="absolute top-4 right-4">
+
+<body class="bg-gray-50 min-h-screen dark:bg-gray-900">
+    <!-- Header Buttons -->
+    <div class="absolute top-4 right-4 flex gap-4">
+        <button id="darkModeToggle" class="btn-secondary">
+            Dark Mode: Off
+        </button>
         <a href="/auth/logout/" class="btn-secondary flex items-center gap-2">
             <i class="ph ph-sign-out"></i>
             <span>Logout</span>
         </a>
     </div>
 
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EcoReco" class="logo-icon">
+                    EcoReco
+                </a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'face_analyzer:index' %}">Facial Emotion Recognition</a></li>
+                <li><a href="#">Text & Voice Emotion Recognition</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
     <div class="container mx-auto px-4 py-8">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Face Analysis</h1>
-            <p class="text-gray-600">Real-time face detection with age, gender, and emotion analysis</p>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2 dark:text-white">Face Analysis</h1>
+            <p class="text-gray-600 dark:text-gray-400">Real-time face detection with age, gender, and emotion analysis
+            </p>
         </div>
 
         <!-- Detection Options -->
         <div class="flex justify-center space-x-4 mb-8">
-            <button id="emotionToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+            <button id="emotionToggle"
+                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
                 <i class="ph ph-smiley"></i>
                 <span>Emotion</span>
             </button>
-            <button id="genderToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+            <button id="genderToggle"
+                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
                 <i class="ph ph-gender-intersex"></i>
                 <span>Gender</span>
             </button>
-            <button id="ageToggle" class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+            <button id="ageToggle"
+                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
                 <i class="ph ph-user"></i>
                 <span>Age</span>
             </button>
         </div>
-        
+
         <div class="grid md:grid-cols-2 gap-8">
             <!-- Video Feed Section -->
             <div class="card">
                 <div class="relative">
                     <video id="videoElement" class="w-full rounded-lg"></video>
                     <canvas id="canvas" class="hidden"></canvas>
-                    <div id="loading" class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                    <div id="loading"
+                        class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
                         <div class="text-white text-center">
                             <i class="ph ph-circle-notch text-4xl animate-spin"></i>
                             <p class="mt-2">Analyzing...</p>
@@ -94,29 +304,29 @@
 
             <!-- Results Section -->
             <div id="results" class="card hidden">
-                <h2 class="text-2xl font-semibold mb-6">Analysis Results</h2>
-                
+                <h2 class="text-2xl font-semibold mb-6 dark:text-white">Analysis Results</h2>
+
                 <!-- Age and Gender -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-50 rounded-lg p-4 text-center">
-                        <p class="text-gray-600 mb-1">Age Range</p>
-                        <p id="age" class="text-2xl font-bold text-gray-900">-</p>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 dark:text-gray-300 mb-1">Age Range</p>
+                        <p id="age" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-4 text-center">
-                        <p class="text-gray-600 mb-1">Gender</p>
-                        <p id="gender" class="text-2xl font-bold text-gray-900">-</p>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 dark:text-gray-300 mb-1">Gender</p>
+                        <p id="gender" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
                     </div>
                 </div>
-                
+
                 <!-- Dominant Emotion -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-2">Dominant Emotion</h3>
+                    <h3 class="text-lg font-semibold mb-2 dark:text-gray-300">Dominant Emotion</h3>
                     <p id="emotion" class="text-xl font-bold text-primary-600">-</p>
                 </div>
-                
+
                 <!-- Emotion Scores -->
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Emotion Distribution</h3>
+                    <h3 class="text-lg font-semibold mb-4 dark:text-gray-300">Emotion Distribution</h3>
                     <div id="emotionScores" class="space-y-3"></div>
                 </div>
             </div>
@@ -124,6 +334,33 @@
     </div>
 
     <script>
+        // Simple dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.style = 'z-index: 9999';
+        const html = document.documentElement;
+        let isDark = false;
+
+        darkModeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            if (isDark) {
+                html.classList.add('dark');
+                darkModeToggle.textContent = 'Dark Mode: On';
+            } else {
+                html.classList.remove('dark');
+                darkModeToggle.textContent = 'Dark Mode: Off';
+            }
+        });
+
+        // Mobile menu toggle
+        const burger = document.querySelector('.burger');
+        const nav = document.querySelector('.nav-links');
+        const navLinks = document.querySelectorAll('.nav-links li');
+
+        burger.addEventListener('click', () => {
+            nav.classList.toggle('nav-active');
+            burger.classList.toggle('toggle');
+        });
+
         let detectionOptions = {
             emotion: true,
             gender: true,
@@ -160,9 +397,10 @@
                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
                 await video.play();
+                captureBtn.disabled = false;
             } catch (err) {
                 console.error('Error accessing camera:', err);
-                alert('Could not access the camera. Please ensure you have granted camera permissions.');
+                alert('Error accessing camera. Please make sure you have granted camera permissions.');
             }
         }
 
@@ -171,6 +409,7 @@
                 stream.getTracks().forEach(track => track.stop());
                 video.srcObject = null;
                 stream = null;
+                captureBtn.disabled = true;
             }
         }
 
@@ -184,11 +423,10 @@
 
         captureBtn.addEventListener('click', async () => {
             if (!stream) {
-                alert('Please enable the camera first');
+                alert('Please start the camera first');
                 return;
             }
 
-            // Set up canvas
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
@@ -201,7 +439,7 @@
             try {
                 // Convert canvas to base64
                 const imageData = canvas.toDataURL('image/jpeg', 0.8);
-                
+
                 // Create form data with detection options
                 const formData = new FormData();
                 formData.append('image', imageData);
@@ -226,19 +464,16 @@
 
                 const data = await response.json();
                 displayResults(data);
-                results.classList.remove('hidden');
             } catch (error) {
                 console.error('Error:', error);
-                alert(error.message || 'Failed to analyze image. Please try again.');
+                alert(error.message || 'An error occurred during analysis');
             } finally {
                 loading.classList.add('hidden');
+                results.classList.remove('hidden');
             }
         });
 
         function displayResults(data) {
-            // Show results container
-            results.classList.remove('hidden');
-
             // Handle potential errors
             if (data.error) {
                 document.getElementById('age').textContent = '-';
@@ -251,32 +486,38 @@
 
             // Display age result
             document.getElementById('age').textContent = data.age || '-';
+            if (data.age_error) {
+                document.getElementById('age').textContent = 'Error: ' + data.age_error;
+            }
 
             // Display gender result
             document.getElementById('gender').textContent = data.gender || '-';
+            if (data.gender_error) {
+                document.getElementById('gender').textContent = 'Error: ' + data.gender_error;
+            }
 
             // Display emotion result
             if (data.emotion && data.emotion_scores) {
                 document.getElementById('emotion').textContent = data.emotion;
-                
+
                 // Display emotion scores
                 const scoresHtml = Object.entries(data.emotion_scores)
-                    .sort(([,a], [,b]) => b - a)
+                    .sort(([, a], [, b]) => b - a)
                     .map(([emotion, score]) => `
                         <div class="flex items-center justify-between">
-                            <span class="text-gray-700">${emotion}</span>
+                            <span class="text-gray-700 dark:text-gray-300">${emotion}</span>
                             <div class="w-2/3">
-                                <div class="h-2 bg-gray-200 rounded">
+                                <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded">
                                     <div class="h-2 bg-primary-500 rounded" 
                                          style="width: ${score * 100}%"></div>
                                 </div>
                             </div>
-                            <span class="text-gray-600 text-sm">${(score * 100).toFixed(1)}%</span>
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">${(score * 100).toFixed(1)}%</span>
                         </div>
                     `).join('');
                 document.getElementById('emotionScores').innerHTML = scoresHtml;
             } else {
-                document.getElementById('emotion').textContent = '-';
+                document.getElementById('emotion').textContent = data.emotion_error || '-';
                 document.getElementById('emotionScores').innerHTML = '';
             }
         }
@@ -285,4 +526,5 @@
         startVideo();
     </script>
 </body>
+
 </html>
