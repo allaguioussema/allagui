@@ -7,9 +7,10 @@
     <title>Face Analysis</title>
     {% load static %}
     {% csrf_token %}
+  <link rel="stylesheet" href="{% static 'face_analyzer/css/Home.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="{% static 'face_analyzer/css/stylesss.css' %}">
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -17,15 +18,15 @@
                 extend: {
                     colors: {
                         primary: {
-                            500: '#0ea5e9',
-                            600: '#0284c7'
+                            500: '#4CAF50',
+                            600: '#4CAF50'
                         }
                     }
                 }
             }
         }
     </script>
-    <style>
+    <!-- <style>
         .btn-primary {
             @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors;
         }
@@ -74,7 +75,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: -1;
+            /* z-index: -1; */
             opacity: 0.4;
             background-image:
                 radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 1%, transparent 15%),
@@ -99,7 +100,6 @@
         header {
             background-color: white;
             color: #333;
-            padding: 10px 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
@@ -108,7 +108,7 @@
             justify-content: space-evenly;
             /* Keeping the original spacing */
             align-items: center;
-            padding: 0 20px;
+            padding: 10px;
             background-color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -214,7 +214,7 @@
             margin: 5px;
             transition: all 0.3s ease;
         }
-    </style>
+    </style> -->
 </head>
 
 <body class="bg-gray-50 min-h-screen dark:bg-gray-900">
@@ -223,7 +223,7 @@
         <button id="darkModeToggle" class="btn-secondary">
             Dark Mode: Off
         </button>
-        <a href="/auth/logout/" class="btn-secondary flex items-center gap-2">
+        <a href="{% url 'face_analyzer:logout' %}" class="btn-secondary flex items-center gap-2">
             <i class="ph ph-sign-out"></i>
             <span>Logout</span>
         </a>
@@ -231,21 +231,21 @@
 
     <header>
         <nav>
-            <div class="logo">
-                <a href="{% url 'home' %}">
-                    <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EcoReco" class="logo-icon">
-                    EcoReco
-                </a>
+          <div class="logo">
+            <a href="{% url 'home' %}">
+              <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EcoReco" class="logo-icon">
+              EcoReco 
+            </a>
             </div>
-            <ul class="nav-links">
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'face_analyzer:index' %}">Facial Emotion Recognition</a></li>
-                <li><a href="#">Text & Voice Emotion Recognition</a></li>
-            </ul>
-            <div class="burger">
-                <div class="line1"></div>
-                <div class="line2"></div>
-                <div class="line3"></div>
+          <ul class="nav-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'face_analyzer:index' %}">Facial Emotion Recognition</a></li>
+            <li><a href="#">Text & Voice Emotion Recognition</a></li>
+          </ul>
+          <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
             </div>
         </nav>
     </header>
@@ -336,7 +336,7 @@
     <script>
         // Simple dark mode toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
-        darkModeToggle.style = 'z-index: 9999';
+        // darkModeToggle.style = 'z-index: 9999';
         const html = document.documentElement;
         let isDark = false;
 

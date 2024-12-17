@@ -1,0 +1,243 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmotionAI Login & Signup</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EmoReco Logo" class="logo">
+    <h1 class="website-name">EmoReco</h1>
+  </header>
+
+  {% if messages %}
+  <div class="messages">
+      {% for message in messages %}
+      <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+          {{ message }}
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="container">
+    <img src="{% static 'face_analyzer/images/bestemoji.jpg' %}" alt="Emotions" class="emotions-image">
+    <div class="form-container">
+      <h2>Analyze Emotions Effortlessly</h2>
+      <p>Discover personalized recommendations tailored to your emotions</p>
+      <div class="tabs">
+        <button class="tab-button" onclick="showForm('login')">Login</button>
+        <button class="tab-button" onclick="showForm('signup')">Signup</button>
+      </div>
+      <form id="login-form" class="form" method="POST" action="{% url 'face_analyzer:auth' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="login">
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="form-button">Login</button>
+      </form>
+      <form id="signup-form" class="form" method="POST" action="{% url 'face_analyzer:auth' %}" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="signup">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" name="full_name" placeholder="Enter your full name" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="password" placeholder="Create a password" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" name="confirm_password" placeholder="Confirm your password" required>
+        </div>
+        <button type="submit" class="form-button">Signup</button>
+      </form>
+    </div>
+  </div>
+  <style> body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+  }
+  
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .website-name {
+    font-size: 32px;
+    font-weight: 800;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .container {
+    display: flex;
+    gap: 92px;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    padding: 40px;
+    width: 80%;
+    max-width: 1200px;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  
+  .form-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .emotions-image {
+    width: 45%;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s;
+  }
+  
+  .emotions-image:hover {
+    transform: scale(1.05);
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+  
+  .input-group {
+    position: relative;
+    width: 80%;
+  }
+  
+  .input-group i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+    transition: color 0.3s;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 14px 18px 14px 50px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .input-group input:focus {
+    border-color: #a18cd1;
+    box-shadow: 0 0 8px rgba(161, 140, 209, 0.5);
+    outline: none;
+  }
+  
+  .input-group i:hover {
+    color: #a18cd1;
+  }
+  
+  .form-button {
+    background: linear-gradient(90deg, #fbc2eb, #a18cd1);
+    color: white;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 80%;
+    font-size: 18px;
+    font-weight: 600;
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  .form-button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #a18cd1, #fbc2eb);
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .tab-button {
+    background-color: #f1f1f1;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s;
+  }
+  
+  .tab-button:hover {
+    background-color: #e0d7f8;
+    color: #a18cd1;
+    transform: translateY(-2px);
+  }
+  
+  .tab-button:active {
+    background-color: #cbb1eb;
+    color: #fff;
+    transform: translateY(0);
+  }
+</style>  
+  <script>
+    function showForm(formType) {
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      if (formType === 'login') {
+        loginForm.style.display = 'flex';
+        signupForm.style.display = 'none';
+      } else {
+        signupForm.style.display = 'flex';
+        loginForm.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
