@@ -42,20 +42,20 @@ def load_models():
     """Load models with caching to prevent repeated loading"""
     try:
         # Load emotion model
-        with open(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.json', 'r') as json_file:
+        with open(r'C:\Users\Mongraal\Desktop\New folder\myProject\raf_model.json', 'r') as json_file:
             loaded_model_json = json_file.read()
         emotion_model = model_from_json(loaded_model_json)
-        emotion_model.load_weights(r'C:\Users\Mongraal\PycharmProjects\JupyterProject\models\raf_model.weights.h5')
+        emotion_model.load_weights(r'C:\Users\Mongraal\Desktop\New folder\myProject\raf_model.weights.h5')
 
         # Load age and gender models
         age_net = cv2.dnn.readNetFromCaffe(
-            r'C:\Users\Mongraal\Downloads\Documents\age_deploy.prototxt',
-            r'C:\Users\Mongraal\Downloads\Documents\age_net.caffemodel'
+            r'C:\Users\Mongraal\Desktop\New folder\myproject\age_deploy.prototxt',
+            r'C:\Users\Mongraal\Desktop\New folder\myproject\age_net.caffemodel'
         )
 
         gender_net = cv2.dnn.readNetFromCaffe(
-            r'C:\Users\Mongraal\Downloads\Documents\gender_deploy.prototxt',
-            r'C:\Users\Mongraal\Downloads\Documents\gender_net.caffemodel'
+            r'C:\Users\Mongraal\Desktop\New folder\myproject\gender_deploy.prototxt',
+            r'C:\Users\Mongraal\Desktop\New folder\myproject\gender_net.caffemodel'
         )
         
         return emotion_model, age_net, gender_net
