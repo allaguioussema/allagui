@@ -166,6 +166,7 @@
                     <h3 class="text-lg font-semibold mb-4 dark:text-gray-300">Emotion Distribution</h3>
                     <div id="emotionScores" class="space-y-3"></div>
                 </div>
+                <a id="movieRecommendBtn" class="hidden text-white bg-primary-500 hover:bg-primary-700 px-4 py-2 rounded-lg" href="#">Get Movie Recommendations</a>
             </div>
         </div>
     </div>
@@ -321,54 +322,52 @@
         });
 
         function displayResults(data) {
-            // Reset previous results
-            document.getElementById('age').textContent = '-';
-            document.getElementById('gender').textContent = '-';
-            document.getElementById('emotion').textContent = '-';
-            document.getElementById('emotionScores').innerHTML = '';
+            const results = document.getElementById('results');
+            const loading = document.getElementById('loading');
+            const movieRecommendBtn = document.getElementById('movieRecommendBtn');
 
-            if (data.error) {
-                showError(data.error);
-                return;
-            }
-
-            // Display age result
-            if (data.age) {
+            // Update age if detected
+            if (detectionOptions.age && data.age) {
                 document.getElementById('age').textContent = data.age;
-            } else if (data.age_error) {
-                document.getElementById('age').textContent = 'Error: ' + data.age_error;
             }
 
-            // Display gender result
-            if (data.gender) {
+            // Update gender if detected
+            if (detectionOptions.gender && data.gender) {
                 document.getElementById('gender').textContent = data.gender;
-            } else if (data.gender_error) {
-                document.getElementById('gender').textContent = 'Error: ' + data.gender_error;
             }
 
-            // Display emotion result
-            if (data.emotion && data.emotion_scores) {
+            // Update emotion if detected
+            if (detectionOptions.emotion && data.emotion) {
                 document.getElementById('emotion').textContent = data.emotion;
+                
+                // Update movie recommendation button
+                movieRecommendBtn.href = `/movies/?emotion=${data.emotion.toLowerCase()}`;
+                movieRecommendBtn.target = '_blank';
+                movieRecommendBtn.classList.remove('hidden');
 
-                // Display emotion scores
-                const scoresHtml = Object.entries(data.emotion_scores)
+                // Update emotion scores
+                const emotionScoresDiv = document.getElementById('emotionScores');
+                emotionScoresDiv.innerHTML = '';
+
+                Object.entries(data.emotion_scores)
                     .sort(([, a], [, b]) => b - a)
-                    .map(([emotion, score]) => `
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700 dark:text-gray-300">${emotion}</span>
-                            <div class="w-2/3">
-                                <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded">
-                                    <div class="h-2 bg-primary-500 rounded" 
-                                         style="width: ${score * 100}%"></div>
+                    .forEach(([emotion, score]) => {
+                        const percentage = (score * 100).toFixed(1);
+                        emotionScoresDiv.innerHTML += `
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-gray-700 dark:text-gray-300">${emotion}</span>
+                                    <span class="text-gray-700 dark:text-gray-300">${percentage}%</span>
                                 </div>
-                            </div>
-                            <span class="text-gray-600 dark:text-gray-400 text-sm">${(score * 100).toFixed(1)}%</span>
-                        </div>
-                    `).join('');
-                document.getElementById('emotionScores').innerHTML = scoresHtml;
-            } else if (data.emotion_error) {
-                document.getElementById('emotion').textContent = 'Error: ' + data.emotion_error;
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-primary-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>`;
+                    });
             }
+
+            results.classList.remove('hidden');
+            loading.classList.add('hidden');
         }
 
         // Start video on page load

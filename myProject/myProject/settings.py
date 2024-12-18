@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'face_analyzer', 
+    'face_analyzer',
+    'movies',
 ]
 
 MIDDLEWARE = [

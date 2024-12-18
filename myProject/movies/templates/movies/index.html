@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <i class="ph ph-film-slate text-2xl text-indigo-500"></i>
+                        <span class="text-xl font-bold">EmotiMovie</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Emotion Filter Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Filter by Emotion</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for emotion in emotions %}
+                <a href="?emotion={{ emotion }}" 
+                   class="px-4 py-2 rounded-full {% if selected_emotion == emotion %}bg-indigo-600{% else %}bg-gray-700{% endif %} 
+                          hover:bg-indigo-500 transition-colors duration-200">
+                    {{ emotion|title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Movies Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for movie in movies %}
+            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200">
+                <img src="{{ movie.image_url }}" alt="{{ movie.title }}" class="w-full h-96 object-cover">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xl font-bold truncate">{{ movie.title }}</h3>
+                        <span class="bg-indigo-600 px-2 py-1 rounded text-sm">{{ movie.rating }}/10</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        {% for emotion in movie.emotion.split %}
+                        <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ emotion|title }}</span>
+                        {% endfor %}
+                        <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ movie.year }}</span>
+                    </div>
+                    <p class="text-gray-400 text-sm line-clamp-3">{{ movie.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-400">
+                <p>&copy; {% now "Y" %} EmotiMovie. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
