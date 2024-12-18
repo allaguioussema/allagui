@@ -16,6 +16,10 @@ import logging
 from functools import lru_cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+import json
+from transformers import pipeline
+import os
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -309,3 +313,65 @@ def user_images(request):
             })
     
     return JsonResponse({'images': user_images})
+
+@login_required(login_url='face_analyzer:auth')
+def text_voice(request):
+    return render(request, 'face_analyzer/text_voice.html')
+
+@login_required
+def analyze_text(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        text = data.get('text', '').strip()
+        
+        if not text:
+            return JsonResponse({'error': 'No text provided'}, status=400)
+            
+        # For now, just return a success response
+        return JsonResponse({
+            'success': True,
+            'message': 'Text received successfully'
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.error(f"Error in text handling: {str(e)}")
+        return JsonResponse({'error': 'Processing failed'}, status=500)
+
+@login_required
+def handle_voice(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    
+    try:
+        if 'audio' not in request.FILES:
+            return JsonResponse({'error': 'No audio file provided'}, status=400)
+            
+        audio_file = request.FILES['audio']
+        
+        # Create a directory for voice recordings if it doesn't exist
+        voice_dir = os.path.join('media', 'voice_recordings')
+        os.makedirs(voice_dir, exist_ok=True)
+        
+        # Generate a unique filename
+        filename = f'voice_{request.user.id}_{int(time.time())}.wav'
+        file_path = os.path.join(voice_dir, filename)
+        
+        # Save the audio file
+        with default_storage.open(file_path, 'wb+') as destination:
+            for chunk in audio_file.chunks():
+                destination.write(chunk)
+            
+        return JsonResponse({
+            'success': True,
+            'message': 'Voice recording saved successfully',
+            'filename': filename
+        })
+            
+    except Exception as e:
+        logger.error(f"Error handling voice recording: {str(e)}")
+        return JsonResponse({'error': 'Failed to save recording'}, status=500)

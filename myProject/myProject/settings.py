@@ -127,6 +127,11 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Authentication settings
+LOGIN_URL = 'face_analyzer:auth'
+LOGIN_REDIRECT_URL = 'face_analyzer:home'
+LOGOUT_REDIRECT_URL = 'face_analyzer:auth'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

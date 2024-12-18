@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Analysis</title>
     {% load static %}
-    {% csrf_token %}
-  <link rel="stylesheet" href="{% static 'face_analyzer/css/Home.css' %}">
+    <link rel="stylesheet" href="{% static 'face_analyzer/css/Home.css' %}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -26,226 +25,64 @@
             }
         }
     </script>
-    <!-- <style>
-        .btn-primary {
-            @apply px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors;
-        }
-
-        .btn-secondary {
-            @apply px-4 py-2 bg-white text-primary-500 border border-primary-500 rounded-lg hover:bg-primary-50 transition-colors;
-        }
-
-        .card {
-            @apply bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-lg dark:bg-gray-800/90;
-        }
-
-        #videoElement {
-            @apply bg-gray-100 w-full h-[400px] object-cover dark:bg-gray-900;
-        }
-
-        /* AI Background Animation */
-        @keyframes gradientFlow {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        body {
-            position: relative;
-            background: linear-gradient(135deg,
-                    rgba(14, 165, 233, 0.05),
-                    rgba(2, 132, 199, 0.05),
-                    rgba(14, 165, 233, 0.1));
-            background-size: 400% 400%;
-            animation: gradientFlow 15s ease infinite;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            /* z-index: -1; */
-            opacity: 0.4;
-            background-image:
-                radial-gradient(circle at 25% 25%, rgba(14, 165, 233, 0.1) 1%, transparent 15%),
-                radial-gradient(circle at 75% 75%, rgba(2, 132, 199, 0.1) 1%, transparent 15%),
-                radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.1) 1%, transparent 25%);
-            background-size: 100px 100px;
-            pointer-events: none;
-        }
-
-        .dark body {
-            background: linear-gradient(135deg,
-                    rgba(14, 165, 233, 0.1),
-                    rgba(2, 132, 199, 0.1),
-                    rgba(14, 165, 233, 0.15));
-        }
-
-        .dark body::before {
-            opacity: 0.2;
-        }
-
-        /* Navigation styles */
-        header {
-            background-color: white;
-            color: #333;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-evenly;
-            /* Keeping the original spacing */
-            align-items: center;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo a {
-            color: #333;
-            text-decoration: none;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-icon {
-            height: 32px;
-            margin-right: 10px;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin-left: 20px;
-            /* Keeping the original spacing */
-        }
-
-        .nav-links a {
-            color: #333;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #4CAF50;
-        }
-
-        /* Burger Menu Styles */
-        .burger {
-            display: none;
-            cursor: pointer;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 21px;
-        }
-
-        .burger div {
-            width: 25px;
-            height: 3px;
-            background-color: #333;
-            transition: all 0.3s ease;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                width: 100%;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                background-color: #fff;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-
-            .nav-links li {
-                margin: 15px 0;
-                text-align: center;
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .burger {
-                display: flex;
-            }
-
-            .burger.toggle .line1 {
-                transform: rotate(-45deg) translate(-5px, 6px);
-            }
-
-            .burger.toggle .line2 {
-                opacity: 0;
-            }
-
-            .burger.toggle .line3 {
-                transform: rotate(45deg) translate(-5px, -6px);
-            }
-        }
-
-        .burger {
-            display: none;
-            cursor: pointer;
-        }
-
-        .burger div {
-            width: 25px;
-            height: 3px;
-            background-color: #333;
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-    </style> -->
+ 
 </head>
 
 <body class="bg-gray-50 min-h-screen dark:bg-gray-900">
-    <!-- Header Buttons -->
-    <div class="absolute top-4 right-4 flex gap-4">
-        <button id="darkModeToggle" class="btn-secondary">
-            Dark Mode: Off
-        </button>
-        <a href="{% url 'face_analyzer:logout' %}" class="btn-secondary flex items-center gap-2">
-            <i class="ph ph-sign-out"></i>
-            <span>Logout</span>
-        </a>
-    </div>
+    {% csrf_token %}
+   
 
     <header>
-        <nav>
-          <div class="logo">
-            <a href="{% url 'home' %}">
-              <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EcoReco" class="logo-icon">
-              EcoReco 
-            </a>
-            </div>
-          <ul class="nav-links">
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'face_analyzer:index' %}">Facial Emotion Recognition</a></li>
-            <li><a href="#">Text & Voice Emotion Recognition</a></li>
-          </ul>
-          <div class="burger">
-            <div class="line1"></div>
-            <div class="line2"></div>
-            <div class="line3"></div>
+        <nav class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <!-- Logo -->
+                    <a href="{% url 'face_analyzer:home' %}" class="flex items-center space-x-3">
+                        <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EmoReco Logo" class="h-10 w-10">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">EmoReco</span>
+                    </a>
+    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="{% url 'face_analyzer:home' %}" class="text-primary-500 font-medium">Home</a>
+                        <a href="{% url 'face_analyzer:index' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Facial Emotion Recognition</a>
+                        <a href="{% url 'face_analyzer:text_voice' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Text & Voice Emotion Recognition</a>
+                        
+                        <!-- Dark Mode Toggle -->
+                        <button id="darkModeToggle" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Dark Mode: Off
+                        </button>
+                        
+                        <!-- Logout Button -->
+                        <a href="{% url 'face_analyzer:logout' %}" class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <i class="ph ph-sign-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+    
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button class="mobile-menu-button p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                            <svg class="h-6 w-6 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+    
+                <!-- Mobile Menu -->
+                <div class="mobile-menu hidden md:hidden py-4">
+                    <a href="{% url 'face_analyzer:home' %}" class="block py-2 text-primary-500 font-medium">Home</a>
+                    <a href="{% url 'face_analyzer:index' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Facial Emotion Recognition</a>
+                    <a href="{% url 'face_analyzer:text_voice' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Text & Voice Emotion Recognition</a>
+                    <button id="darkModeToggleMobile" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
+                        Dark Mode: Off
+                    </button>
+                    <a href="{% url 'face_analyzer:logout' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
+                        <i class="ph ph-sign-out"></i>
+                        Logout
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
@@ -336,7 +173,6 @@
     <script>
         // Simple dark mode toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
-        // darkModeToggle.style = 'z-index: 9999';
         const html = document.documentElement;
         let isDark = false;
 
@@ -351,16 +187,7 @@
             }
         });
 
-        // Mobile menu toggle
-        const burger = document.querySelector('.burger');
-        const nav = document.querySelector('.nav-links');
-        const navLinks = document.querySelectorAll('.nav-links li');
-
-        burger.addEventListener('click', () => {
-            nav.classList.toggle('nav-active');
-            burger.classList.toggle('toggle');
-        });
-
+        // Initialize detection options
         let detectionOptions = {
             emotion: true,
             gender: true,
@@ -384,6 +211,7 @@
             document.getElementById(`${type}Toggle`).addEventListener('click', () => toggleDetection(type));
         });
 
+        // Camera handling
         let stream = null;
         const video = document.getElementById('videoElement');
         const canvas = document.getElementById('canvas');
@@ -394,13 +222,17 @@
 
         async function startVideo() {
             try {
+                loading.classList.remove('hidden');
                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = stream;
                 await video.play();
                 captureBtn.disabled = false;
+                toggleBtn.innerHTML = '<i class="ph ph-video-camera"></i> Stop Camera';
             } catch (err) {
                 console.error('Error accessing camera:', err);
-                alert('Error accessing camera. Please make sure you have granted camera permissions.');
+                showError('Error accessing camera. Please make sure you have granted camera permissions.');
+            } finally {
+                loading.classList.add('hidden');
             }
         }
 
@@ -410,7 +242,19 @@
                 video.srcObject = null;
                 stream = null;
                 captureBtn.disabled = true;
+                toggleBtn.innerHTML = '<i class="ph ph-video-camera"></i> Start Camera';
             }
+        }
+
+        function showError(message) {
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            results.innerHTML = `
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                    <strong class="font-bold">Error!</strong>
+                    <span class="block sm:inline">${message}</span>
+                </div>
+            `;
         }
 
         toggleBtn.addEventListener('click', () => {
@@ -423,7 +267,7 @@
 
         captureBtn.addEventListener('click', async () => {
             if (!stream) {
-                alert('Please start the camera first');
+                showError('Please start the camera first');
                 return;
             }
 
@@ -456,17 +300,20 @@
                     body: formData
                 });
 
-                const contentType = response.headers.get('content-type');
-                if (!response.ok || !contentType || !contentType.includes('application/json')) {
-                    const errorText = await response.text();
-                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Analysis failed');
                 }
 
                 const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
                 displayResults(data);
             } catch (error) {
                 console.error('Error:', error);
-                alert(error.message || 'An error occurred during analysis');
+                showError(error.message || 'An error occurred during analysis');
             } finally {
                 loading.classList.add('hidden');
                 results.classList.remove('hidden');
@@ -474,25 +321,28 @@
         });
 
         function displayResults(data) {
-            // Handle potential errors
+            // Reset previous results
+            document.getElementById('age').textContent = '-';
+            document.getElementById('gender').textContent = '-';
+            document.getElementById('emotion').textContent = '-';
+            document.getElementById('emotionScores').innerHTML = '';
+
             if (data.error) {
-                document.getElementById('age').textContent = '-';
-                document.getElementById('gender').textContent = '-';
-                document.getElementById('emotion').textContent = '-';
-                document.getElementById('emotionScores').innerHTML = '';
-                alert(data.error);
+                showError(data.error);
                 return;
             }
 
             // Display age result
-            document.getElementById('age').textContent = data.age || '-';
-            if (data.age_error) {
+            if (data.age) {
+                document.getElementById('age').textContent = data.age;
+            } else if (data.age_error) {
                 document.getElementById('age').textContent = 'Error: ' + data.age_error;
             }
 
             // Display gender result
-            document.getElementById('gender').textContent = data.gender || '-';
-            if (data.gender_error) {
+            if (data.gender) {
+                document.getElementById('gender').textContent = data.gender;
+            } else if (data.gender_error) {
                 document.getElementById('gender').textContent = 'Error: ' + data.gender_error;
             }
 
@@ -516,15 +366,74 @@
                         </div>
                     `).join('');
                 document.getElementById('emotionScores').innerHTML = scoresHtml;
-            } else {
-                document.getElementById('emotion').textContent = data.emotion_error || '-';
-                document.getElementById('emotionScores').innerHTML = '';
+            } else if (data.emotion_error) {
+                document.getElementById('emotion').textContent = 'Error: ' + data.emotion_error;
             }
         }
 
         // Start video on page load
         startVideo();
+        
     </script>
+    <footer class="bg-white dark:bg-gray-800 py-12 transition-colors duration-200">
+        <div class="container mx-auto px-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <!-- Company Info -->
+            <div class="flex flex-col items-start">
+              <div class="flex items-center gap-2 mb-4">
+                <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EmoReco" class="w-8 h-8">
+                <span class="text-xl font-bold text-gray-900 dark:text-white">EmoReco</span>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 text-sm">
+                Empowering emotion recognition through advanced AI technology.
+              </p>
+            </div>
+    
+            <!-- Contact Info -->
+            <div class="flex flex-col">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Us</h3>
+              <div class="space-y-2">
+                <p class="text-gray-600 dark:text-gray-300 text-sm flex items-center gap-2">
+                  <i class="ph ph-envelope"></i>
+                  contact@emoreco.com
+                </p>
+                <p class="text-gray-600 dark:text-gray-300 text-sm flex items-center gap-2">
+                  <i class="ph ph-phone"></i>
+                  +123 456 7890
+                </p>
+              </div>
+            </div>
+    
+            <!-- Social Links -->
+            <div class="flex flex-col">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Follow Us</h3>
+              <div class="flex items-center gap-4">
+                <a href="https://www.facebook.com/oussema1.allagui.3/" target="_blank" 
+                   class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">
+                  <img src="{% static 'face_analyzer/images/facebook.png' %}" alt="Facebook" class="w-6 h-6">
+                </a>
+                <a href="https://github.com/allaguioussema" target="_blank" 
+                   class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">
+                  <img src="{% static 'face_analyzer/images/github.png' %}" alt="github" class="w-6 h-6">
+                </a>
+                
+                <a href="https://www.linkedin.com/feed/?nis=true" target="_blank" 
+                   class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">
+                  <img src="{% static 'face_analyzer/images/linkedin.png' %}" alt="LinkedIn" class="w-6 h-6">
+                </a>
+              </div>
+            </div>
+          </div>
+    
+          <!-- Copyright -->
+          <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+              2024 EmoReco. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    
 </body>
 
 </html>
