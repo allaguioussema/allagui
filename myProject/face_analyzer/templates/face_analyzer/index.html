@@ -340,8 +340,13 @@
             if (detectionOptions.emotion && data.emotion) {
                 document.getElementById('emotion').textContent = data.emotion;
                 
-                // Update movie recommendation button
-                movieRecommendBtn.href = `/movies/?emotion=${data.emotion.toLowerCase()}`;
+                // Update movie recommendation button with emotion scores
+                const emotionScores = {};
+                Object.entries(data.emotion_scores).forEach(([emotion, score]) => {
+                    emotionScores[emotion.toLowerCase()] = score;
+                });
+                const emotionData = encodeURIComponent(JSON.stringify(emotionScores));
+                movieRecommendBtn.href = `/movies/?emotion_data=${emotionData}`;
                 movieRecommendBtn.target = '_blank';
                 movieRecommendBtn.classList.remove('hidden');
 

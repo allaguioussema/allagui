@@ -4,20 +4,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Recommendations</title>
+    <title>Movie RecommendationsEmotiMovie</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Add Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .movie-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #818cf8, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-gradient {
+            background: linear-gradient(to right, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.95));
+            backdrop-filter: blur(10px);
+        }
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .emotion-pill {
+            background: linear-gradient(135deg, #4f46e5, #818cf8);
+        }
+        .rating-badge {
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white min-h-screen">
     <!-- Navigation -->
-    <nav class="bg-gray-800 shadow-lg">
+    <nav class="nav-gradient fixed w-full z-50 border-b border-gray-700/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <a href="/" class="flex items-center space-x-2">
-                        <i class="ph ph-film-slate text-2xl text-indigo-500"></i>
-                        <span class="text-xl font-bold">EmotiMovie</span>
+                    <a href="/" class="flex items-center space-x-3 group">
+                        <i class="ph ph-film-slate text-3xl text-indigo-400 group-hover:text-indigo-300 transition-colors"></i>
+                        <span class="text-2xl font-bold gradient-text">EmotiMovie</span>
                     </a>
                 </div>
             </div>
@@ -25,36 +54,101 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                <span class="gradient-text">Personalized Movie</span> Recommendations
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Discover films that resonate with your emotional state, curated just for you
+            </p>
+        </div>
+
         <!-- Emotion Filter Section -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Filter by Emotion</h2>
-            <div class="flex flex-wrap gap-2">
+        <div class="mb-12 bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700/50">
+            <h2 class="text-2xl font-bold mb-6 gradient-text">Explore by Emotion</h2>
+            <div class="flex flex-wrap gap-3">
+                <a href="{% url 'movies:index' %}" 
+                   class="px-6 py-3 rounded-full {% if not selected_emotion %}emotion-pill{% else %}bg-gray-700/70{% endif %} 
+                          hover:bg-indigo-600 transition-all duration-300 font-medium flex items-center gap-2">
+                    <i class="ph ph-sparkle text-lg"></i>
+                    Movie Suggestions
+                </a>
                 {% for emotion in emotions %}
                 <a href="?emotion={{ emotion }}" 
-                   class="px-4 py-2 rounded-full {% if selected_emotion == emotion %}bg-indigo-600{% else %}bg-gray-700{% endif %} 
-                          hover:bg-indigo-500 transition-colors duration-200">
+                   class="px-6 py-3 rounded-full {% if selected_emotion == emotion %}emotion-pill{% else %}bg-gray-700/70{% endif %} 
+                          hover:bg-indigo-600 transition-all duration-300 font-medium">
                     {{ emotion|title }}
                 </a>
                 {% endfor %}
             </div>
         </div>
 
+        <!-- Recommended Movies Section -->
+        {% if request.GET.emotion_data %}
+        <div class="mb-12">
+            <div class="bg-gray-800/50 rounded-2xl p-6 backdrop-blur-sm border border-gray-700/50">
+                <h2 class="text-2xl font-bold mb-4 gradient-text">Your Emotional Profile</h2>
+                <p class="text-gray-400 mb-6">Movies curated based on your current emotional state</p>
+                
+                <!-- Emotion Distribution -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {% with emotion_data=request.GET.emotion_data|safe|json_script:"emotion-data" %}
+                    <script>
+                        const emotionData = JSON.parse(document.getElementById('emotion-data').textContent);
+                        const emotionElements = document.createDocumentFragment();
+                        
+                        Object.entries(emotionData)
+                            .sort(([, a], [, b]) => b - a)
+                            .forEach(([emotion, score]) => {
+                                if (score >= 0.05) {  // Only show emotions >= 5%
+                                    const div = document.createElement('div');
+                                    div.className = 'bg-gray-700/50 rounded-xl p-4 backdrop-blur-sm border border-gray-600/50';
+                                    div.innerHTML = `
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-sm font-medium text-gray-300">${emotion.charAt(0).toUpperCase() + emotion.slice(1)}</span>
+                                            <span class="text-sm font-medium text-indigo-400">${(score * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-600/50 rounded-full h-2.5 overflow-hidden">
+                                            <div class="emotion-pill h-2.5 rounded-full transition-all duration-1000" style="width: ${score * 100}%"></div>
+                                        </div>
+                                    `;
+                                    emotionElements.appendChild(div);
+                                }
+                            });
+                        
+                        document.querySelector('.grid').appendChild(emotionElements);
+                    </script>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Movies Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="movie-grid">
             {% for movie in movies %}
-            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition-transform duration-200">
-                <img src="{{ movie.image_url }}" alt="{{ movie.title }}" class="w-full h-96 object-cover">
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-xl font-bold truncate">{{ movie.title }}</h3>
-                        <span class="bg-indigo-600 px-2 py-1 rounded text-sm">{{ movie.rating }}/10</span>
+            <div class="movie-card bg-gray-800/50 rounded-2xl overflow-hidden backdrop-blur-sm border border-gray-700/50">
+                <div class="relative">
+                    <img src="{{ movie.image_url }}" alt="{{ movie.title }}" 
+                         class="w-full h-80 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 right-4">
+                        <h3 class="text-xl font-bold text-white truncate">{{ movie.title }}</h3>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="rating-badge px-2 py-1 rounded-lg text-sm font-medium">
+                                <i class="ph ph-star-fill mr-1"></i>{{ movie.rating }}/10
+                            </span>
+                            <span class="bg-gray-700/70 px-2 py-1 rounded-lg text-sm">{{ movie.year }}</span>
+                        </div>
                     </div>
+                </div>
+                <div class="p-4">
                     <div class="flex flex-wrap gap-2 mb-3">
-                        {% for emotion in movie.emotion.split %}
-                        <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ emotion|title }}</span>
-                        {% endfor %}
-                        <span class="bg-gray-700 px-2 py-1 rounded-full text-sm">{{ movie.year }}</span>
+                        <span class="emotion-pill px-3 py-1 rounded-full text-sm font-medium">
+                            {{ movie.emotion|title }}
+                        </span>
                     </div>
                     <p class="text-gray-400 text-sm line-clamp-3">{{ movie.description }}</p>
                 </div>
@@ -64,7 +158,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 mt-12">
+    <footer class="nav-gradient border-t border-gray-700/50 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center text-gray-400">
                 <p>&copy; {% now "Y" %} EmotiMovie. All rights reserved.</p>
