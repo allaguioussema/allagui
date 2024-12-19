@@ -32,7 +32,7 @@
     {% csrf_token %}
    
 
-    <header>
+    <header class="fixed top-0 left-0 right-0 z-50">
         <nav class="bg-white dark:bg-gray-800 shadow-lg">
             <div class="container mx-auto px-4">
                 <div class="flex justify-between items-center py-4">
@@ -44,8 +44,8 @@
     
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex items-center space-x-8">
-                        <a href="{% url 'face_analyzer:home' %}" class="text-primary-500 font-medium">Home</a>
-                        <a href="{% url 'face_analyzer:index' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Facial Emotion Recognition</a>
+                        <a href="{% url 'face_analyzer:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Home</a>
+                        <a href="{% url 'face_analyzer:index' %}" class="text-primary-500 font-medium">Facial Emotion Recognition</a>
                         <a href="{% url 'face_analyzer:text_voice' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Text & Voice Emotion Recognition</a>
                         
                         <!-- Dark Mode Toggle -->
@@ -72,8 +72,8 @@
     
                 <!-- Mobile Menu -->
                 <div class="mobile-menu hidden md:hidden py-4">
-                    <a href="{% url 'face_analyzer:home' %}" class="block py-2 text-primary-500 font-medium">Home</a>
-                    <a href="{% url 'face_analyzer:index' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Facial Emotion Recognition</a>
+                    <a href="{% url 'face_analyzer:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Home</a>
+                    <a href="{% url 'face_analyzer:index' %}" class="block py-2 text-primary-500 font-medium">Facial Emotion Recognition</a>
                     <a href="{% url 'face_analyzer:text_voice' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Text & Voice Emotion Recognition</a>
                     <button id="darkModeToggleMobile" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
                         Dark Mode: Off
@@ -87,298 +87,331 @@
         </nav>
     </header>
 
-    <div class="container mx-auto px-4 py-8">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2 dark:text-white">Face Analysis</h1>
-            <p class="text-gray-600 dark:text-gray-400">Real-time face detection with age, gender, and emotion analysis
-            </p>
-        </div>
+    <main class="pt-20">
+        <div class="container mx-auto px-4 py-8">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2 dark:text-white">Face Analysis</h1>
+                <p class="text-gray-600 dark:text-gray-400">Real-time face detection with age, gender, and emotion analysis
+                </p>
+            </div>
 
-        <!-- Detection Options -->
-        <div class="flex justify-center space-x-4 mb-8">
-            <button id="emotionToggle"
-                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
-                <i class="ph ph-smiley"></i>
-                <span>Emotion</span>
-            </button>
-            <button id="genderToggle"
-                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
-                <i class="ph ph-gender-intersex"></i>
-                <span>Gender</span>
-            </button>
-            <button id="ageToggle"
-                class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
-                <i class="ph ph-user"></i>
-                <span>Age</span>
-            </button>
-        </div>
+            <!-- Detection Options -->
+            <div class="flex justify-center space-x-4 mb-8">
+                <button id="emotionToggle"
+                    class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                    <i class="ph ph-smiley"></i>
+                    <span>Emotion</span>
+                </button>
+                <button id="genderToggle"
+                    class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                    <i class="ph ph-gender-intersex"></i>
+                    <span>Gender</span>
+                </button>
+                <button id="ageToggle"
+                    class="toggle-btn flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-500 text-white">
+                    <i class="ph ph-user"></i>
+                    <span>Age</span>
+                </button>
+            </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Video Feed Section -->
-            <div class="card">
-                <div class="relative">
-                    <video id="videoElement" class="w-full rounded-lg"></video>
-                    <canvas id="canvas" class="hidden"></canvas>
-                    <div id="loading"
-                        class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
-                        <div class="text-white text-center">
-                            <i class="ph ph-circle-notch text-4xl animate-spin"></i>
-                            <p class="mt-2">Analyzing...</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Video Feed Section -->
+                <div class="card">
+                    <div class="relative">
+                        <video id="videoElement" class="w-full rounded-lg"></video>
+                        <canvas id="canvas" class="hidden"></canvas>
+                        <div id="loading"
+                            class="hidden absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                            <div class="text-white text-center">
+                                <i class="ph ph-circle-notch text-4xl animate-spin"></i>
+                                <p class="mt-2">Analyzing...</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="mt-4 flex justify-center gap-4">
-                    <button id="captureBtn" class="btn-primary flex items-center gap-2">
-                        <i class="ph ph-camera"></i>
-                        Capture and Analyze
-                    </button>
-                    <button id="toggleVideo" class="btn-primary flex items-center gap-2">
-                        <i class="ph ph-video-camera"></i>
-                        Toggle Camera
-                    </button>
-                </div>
-            </div>
-
-            <!-- Results Section -->
-            <div id="results" class="card hidden">
-                <h2 class="text-2xl font-semibold mb-6 dark:text-white">Analysis Results</h2>
-
-                <!-- Age and Gender -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                        <p class="text-gray-600 dark:text-gray-300 mb-1">Age Range</p>
-                        <p id="age" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                        <p class="text-gray-600 dark:text-gray-300 mb-1">Gender</p>
-                        <p id="gender" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
+                    <div class="mt-4 flex justify-center gap-4">
+                        <button id="captureBtn" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                            <i class="ph ph-camera text-xl mr-2"></i>
+                            Capture and Analyze
+                        </button>
+                        <button id="toggleVideo" class="inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 dark:bg-red-700 dark:hover:bg-red-800">
+                            <i class="ph ph-stop-circle text-xl mr-2"></i>
+                            Stop Camera
+                        </button>
                     </div>
                 </div>
 
-                <!-- Dominant Emotion -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold mb-2 dark:text-gray-300">Dominant Emotion</h3>
-                    <p id="emotion" class="text-xl font-bold text-primary-600">-</p>
-                </div>
+                <!-- Results Section -->
+                <div id="results" class="card hidden">
+                    <h2 class="text-2xl font-semibold mb-6 dark:text-white">Analysis Results</h2>
 
-                <!-- Emotion Scores -->
-                <div>
-                    <h3 class="text-lg font-semibold mb-4 dark:text-gray-300">Emotion Distribution</h3>
-                    <div id="emotionScores" class="space-y-3"></div>
+                    <!-- Age and Gender -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-600 dark:text-gray-300 mb-1">Age Range</p>
+                            <p id="age" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                            <p class="text-gray-600 dark:text-gray-300 mb-1">Gender</p>
+                            <p id="gender" class="text-2xl font-bold text-gray-900 dark:text-white">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Dominant Emotion -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-2 dark:text-gray-300">Dominant Emotion</h3>
+                        <p id="emotion" class="text-xl font-bold text-primary-600">-</p>
+                    </div>
+
+                    <!-- Emotion Scores -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 dark:text-gray-300">Emotion Distribution</h3>
+                        <div id="emotionScores" class="space-y-3"></div>
+                    </div>
+                    <a id="movieRecommendBtn" class="hidden text-white bg-primary-500 hover:bg-primary-700 px-4 py-2 rounded-lg" href="#">Get Movie Recommendations</a>
                 </div>
-                <a id="movieRecommendBtn" class="hidden text-white bg-primary-500 hover:bg-primary-700 px-4 py-2 rounded-lg" href="#">Get Movie Recommendations</a>
             </div>
         </div>
-    </div>
 
-    <script>
-        // Simple dark mode toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const html = document.documentElement;
-        let isDark = false;
+        <script>
+            // Simple dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const darkModeToggleMobile = document.getElementById('darkModeToggleMobile');
+            const html = document.documentElement;
 
-        darkModeToggle.addEventListener('click', () => {
-            isDark = !isDark;
-            if (isDark) {
+            // Function to update button text
+            function updateButtonText(isDark) {
+                const text = isDark ? 'Dark Mode: On' : 'Dark Mode: Off';
+                if (darkModeToggle) darkModeToggle.textContent = text;
+                if (darkModeToggleMobile) darkModeToggleMobile.textContent = text;
+            }
+
+            // Function to toggle dark mode
+            function toggleDarkMode() {
+                const isDark = html.classList.toggle('dark');
+                localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
+                updateButtonText(isDark);
+            }
+
+            // Initialize dark mode based on localStorage
+            if (localStorage.getItem('darkMode') === 'dark') {
                 html.classList.add('dark');
-                darkModeToggle.textContent = 'Dark Mode: On';
+                updateButtonText(true);
             } else {
                 html.classList.remove('dark');
-                darkModeToggle.textContent = 'Dark Mode: Off';
-            }
-        });
-
-        // Initialize detection options
-        let detectionOptions = {
-            emotion: true,
-            gender: true,
-            age: true
-        };
-
-        function toggleDetection(type) {
-            detectionOptions[type] = !detectionOptions[type];
-            const button = document.getElementById(`${type}Toggle`);
-            if (detectionOptions[type]) {
-                button.classList.remove('bg-gray-200');
-                button.classList.add('bg-primary-500', 'text-white');
-            } else {
-                button.classList.remove('bg-primary-500', 'text-white');
-                button.classList.add('bg-gray-200');
-            }
-        }
-
-        // Add click handlers to toggle buttons
-        ['emotion', 'gender', 'age'].forEach(type => {
-            document.getElementById(`${type}Toggle`).addEventListener('click', () => toggleDetection(type));
-        });
-
-        // Camera handling
-        let stream = null;
-        const video = document.getElementById('videoElement');
-        const canvas = document.getElementById('canvas');
-        const captureBtn = document.getElementById('captureBtn');
-        const toggleBtn = document.getElementById('toggleVideo');
-        const loading = document.getElementById('loading');
-        const results = document.getElementById('results');
-
-        async function startVideo() {
-            try {
-                loading.classList.remove('hidden');
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                await video.play();
-                captureBtn.disabled = false;
-                toggleBtn.innerHTML = '<i class="ph ph-video-camera"></i> Stop Camera';
-            } catch (err) {
-                console.error('Error accessing camera:', err);
-                showError('Error accessing camera. Please make sure you have granted camera permissions.');
-            } finally {
-                loading.classList.add('hidden');
-            }
-        }
-
-        function stopVideo() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-                stream = null;
-                captureBtn.disabled = true;
-                toggleBtn.innerHTML = '<i class="ph ph-video-camera"></i> Start Camera';
-            }
-        }
-
-        function showError(message) {
-            const results = document.getElementById('results');
-            results.classList.remove('hidden');
-            results.innerHTML = `
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                    <strong class="font-bold">Error!</strong>
-                    <span class="block sm:inline">${message}</span>
-                </div>
-            `;
-        }
-
-        toggleBtn.addEventListener('click', () => {
-            if (stream) {
-                stopVideo();
-            } else {
-                startVideo();
-            }
-        });
-
-        captureBtn.addEventListener('click', async () => {
-            if (!stream) {
-                showError('Please start the camera first');
-                return;
+                updateButtonText(false);
             }
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
+            // Event listeners
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', toggleDarkMode);
+            }
+            if (darkModeToggleMobile) {
+                darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+            }
 
-            // Show loading state
-            loading.classList.remove('hidden');
-            results.classList.add('hidden');
+            // Mobile menu functionality
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
 
-            try {
-                // Convert canvas to base64
-                const imageData = canvas.toDataURL('image/jpeg', 0.8);
-
-                // Create form data with detection options
-                const formData = new FormData();
-                formData.append('image', imageData);
-                formData.append('detect_emotion', detectionOptions.emotion);
-                formData.append('detect_gender', detectionOptions.gender);
-                formData.append('detect_age', detectionOptions.age);
-
-                // Send to backend
-                const response = await fetch('/face/analyze/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: formData
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
                 });
-
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.error || 'Analysis failed');
-                }
-
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                displayResults(data);
-            } catch (error) {
-                console.error('Error:', error);
-                showError(error.message || 'An error occurred during analysis');
-            } finally {
-                loading.classList.add('hidden');
-                results.classList.remove('hidden');
             }
-        });
 
-        function displayResults(data) {
-            const results = document.getElementById('results');
+            // Initialize detection options
+            let detectionOptions = {
+                emotion: true,
+                gender: true,
+                age: true
+            };
+
+            function toggleDetection(type) {
+                detectionOptions[type] = !detectionOptions[type];
+                const button = document.getElementById(`${type}Toggle`);
+                if (detectionOptions[type]) {
+                    button.classList.remove('bg-gray-200');
+                    button.classList.add('bg-primary-500', 'text-white');
+                } else {
+                    button.classList.remove('bg-primary-500', 'text-white');
+                    button.classList.add('bg-gray-200');
+                }
+            }
+
+            // Add click handlers to toggle buttons
+            ['emotion', 'gender', 'age'].forEach(type => {
+                document.getElementById(`${type}Toggle`).addEventListener('click', () => toggleDetection(type));
+            });
+
+            // Camera handling
+            let stream = null;
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvas');
+            const captureBtn = document.getElementById('captureBtn');
+            const toggleBtn = document.getElementById('toggleVideo');
             const loading = document.getElementById('loading');
-            const movieRecommendBtn = document.getElementById('movieRecommendBtn');
+            const results = document.getElementById('results');
 
-            // Update age if detected
-            if (detectionOptions.age && data.age) {
-                document.getElementById('age').textContent = data.age;
+            async function startVideo() {
+                try {
+                    loading.classList.remove('hidden');
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    await video.play();
+                    captureBtn.disabled = false;
+                    toggleBtn.innerHTML = '<i class="ph ph-stop-circle text-xl mr-2"></i> Stop Camera';
+                } catch (err) {
+                    console.error('Error accessing camera:', err);
+                    showError('Error accessing camera. Please make sure you have granted camera permissions.');
+                } finally {
+                    loading.classList.add('hidden');
+                }
             }
 
-            // Update gender if detected
-            if (detectionOptions.gender && data.gender) {
-                document.getElementById('gender').textContent = data.gender;
+            function stopVideo() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                    stream = null;
+                    captureBtn.disabled = true;
+                    toggleBtn.innerHTML = '<i class="ph ph-camera text-xl mr-2"></i> Start Camera';
+                }
             }
 
-            // Update emotion if detected
-            if (detectionOptions.emotion && data.emotion) {
-                document.getElementById('emotion').textContent = data.emotion;
-                
-                // Update movie recommendation button with emotion scores
-                const emotionScores = {};
-                Object.entries(data.emotion_scores).forEach(([emotion, score]) => {
-                    emotionScores[emotion.toLowerCase()] = score;
-                });
-                const emotionData = encodeURIComponent(JSON.stringify(emotionScores));
-                movieRecommendBtn.href = `/movies/?emotion_data=${emotionData}`;
-                movieRecommendBtn.target = '_blank';
-                movieRecommendBtn.classList.remove('hidden');
+            function showError(message) {
+                const results = document.getElementById('results');
+                results.classList.remove('hidden');
+                results.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline">${message}</span>
+                    </div>
+                `;
+            }
 
-                // Update emotion scores
-                const emotionScoresDiv = document.getElementById('emotionScores');
-                emotionScoresDiv.innerHTML = '';
+            toggleBtn.addEventListener('click', () => {
+                if (stream) {
+                    stopVideo();
+                } else {
+                    startVideo();
+                }
+            });
 
-                Object.entries(data.emotion_scores)
-                    .sort(([, a], [, b]) => b - a)
-                    .forEach(([emotion, score]) => {
-                        const percentage = (score * 100).toFixed(1);
-                        emotionScoresDiv.innerHTML += `
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <span class="text-gray-700 dark:text-gray-300">${emotion}</span>
-                                    <span class="text-gray-700 dark:text-gray-300">${percentage}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                                    <div class="bg-primary-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                                </div>
-                            </div>`;
+            captureBtn.addEventListener('click', async () => {
+                if (!stream) {
+                    showError('Please start the camera first');
+                    return;
+                }
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                // Show loading state
+                loading.classList.remove('hidden');
+                results.classList.add('hidden');
+
+                try {
+                    // Convert canvas to base64
+                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+                    // Create form data with detection options
+                    const formData = new FormData();
+                    formData.append('image', imageData);
+                    formData.append('detect_emotion', detectionOptions.emotion);
+                    formData.append('detect_gender', detectionOptions.gender);
+                    formData.append('detect_age', detectionOptions.age);
+
+                    // Send to backend
+                    const response = await fetch('/face/analyze/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: formData
                     });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Analysis failed');
+                    }
+
+                    const data = await response.json();
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    displayResults(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError(error.message || 'An error occurred during analysis');
+                } finally {
+                    loading.classList.add('hidden');
+                    results.classList.remove('hidden');
+                }
+            });
+
+            function displayResults(data) {
+                const results = document.getElementById('results');
+                const loading = document.getElementById('loading');
+                const movieRecommendBtn = document.getElementById('movieRecommendBtn');
+
+                // Update age if detected
+                if (detectionOptions.age && data.age) {
+                    document.getElementById('age').textContent = data.age;
+                }
+
+                // Update gender if detected
+                if (detectionOptions.gender && data.gender) {
+                    document.getElementById('gender').textContent = data.gender;
+                }
+
+                // Update emotion if detected
+                if (detectionOptions.emotion && data.emotion) {
+                    document.getElementById('emotion').textContent = data.emotion;
+                    
+                    // Update movie recommendation button with emotion scores
+                    const emotionScores = {};
+                    Object.entries(data.emotion_scores).forEach(([emotion, score]) => {
+                        emotionScores[emotion.toLowerCase()] = score;
+                    });
+                    const emotionData = encodeURIComponent(JSON.stringify(emotionScores));
+                    movieRecommendBtn.href = `/movies/?emotion_data=${emotionData}`;
+                    movieRecommendBtn.target = '_blank';
+                    movieRecommendBtn.classList.remove('hidden');
+
+                    // Update emotion scores
+                    const emotionScoresDiv = document.getElementById('emotionScores');
+                    emotionScoresDiv.innerHTML = '';
+
+                    Object.entries(data.emotion_scores)
+                        .sort(([, a], [, b]) => b - a)
+                        .forEach(([emotion, score]) => {
+                            const percentage = (score * 100).toFixed(1);
+                            emotionScoresDiv.innerHTML += `
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-gray-700 dark:text-gray-300">${emotion}</span>
+                                        <span class="text-gray-700 dark:text-gray-300">${percentage}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                        <div class="bg-primary-500 h-2.5 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                                    </div>
+                                </div>`;
+                        });
+                }
+
+                results.classList.remove('hidden');
+                loading.classList.add('hidden');
             }
 
-            results.classList.remove('hidden');
-            loading.classList.add('hidden');
-        }
+            // Start video on page load
+            startVideo();
+            
+        </script>
+    </main>
 
-        // Start video on page load
-        startVideo();
-        
-    </script>
     <footer class="bg-white dark:bg-gray-800 py-12 transition-colors duration-200">
         <div class="container mx-auto px-8">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-12">

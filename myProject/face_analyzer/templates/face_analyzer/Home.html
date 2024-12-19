@@ -140,7 +140,7 @@
   </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-  <header>
+  <header class="fixed top-0 left-0 right-0 z-50">
     <nav class="bg-white dark:bg-gray-800 shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
@@ -195,7 +195,7 @@
     </nav>
   </header>
 
-  <main class="container mx-auto px-4 py-8">
+  <main class="pt-20 container mx-auto px-4 py-8">
     <section class="hero text-center py-16 bg-gradient-to-b from-transparent to-gray-100 dark:to-gray-800 rounded-3xl mb-16">
       <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">Welcome to EmoReco</h1>
       <p class="text-xl text-gray-600 dark:text-gray-300">Discover the power of emotion recognition through facial, text, and voice analysis.</p>
@@ -283,56 +283,51 @@
   </footer>
 
   <script>
-    // Dark mode toggle with localStorage persistence
+    // Dark mode functionality
     const darkModeToggle = document.getElementById('darkModeToggle');
     const darkModeToggleMobile = document.getElementById('darkModeToggleMobile');
     const html = document.documentElement;
-    
-    // Check for saved dark mode preference
-    if (localStorage.getItem('darkMode') === 'enabled') {
-      html.classList.add('dark');
-      darkModeToggle.textContent = 'Dark Mode: On';
-      darkModeToggleMobile.textContent = 'Dark Mode: On';
+
+    // Function to update button text
+    function updateButtonText(isDark) {
+        const text = isDark ? 'Dark Mode: On' : 'Dark Mode: Off';
+        if (darkModeToggle) darkModeToggle.textContent = text;
+        if (darkModeToggleMobile) darkModeToggleMobile.textContent = text;
     }
 
+    // Function to toggle dark mode
     function toggleDarkMode() {
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-        localStorage.setItem('darkMode', 'disabled');
-        darkModeToggle.textContent = 'Dark Mode: Off';
-        darkModeToggleMobile.textContent = 'Dark Mode: Off';
-      } else {
-        html.classList.add('dark');
-        localStorage.setItem('darkMode', 'enabled');
-        darkModeToggle.textContent = 'Dark Mode: On';
-        darkModeToggleMobile.textContent = 'Dark Mode: On';
-      }
+        const isDark = html.classList.toggle('dark');
+        localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
+        updateButtonText(isDark);
     }
 
-    darkModeToggle.addEventListener('click', toggleDarkMode);
-    darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+    // Initialize dark mode based on localStorage
+    if (localStorage.getItem('darkMode') === 'dark') {
+        html.classList.add('dark');
+        updateButtonText(true);
+    } else {
+        html.classList.remove('dark');
+        updateButtonText(false);
+    }
 
-    // Mobile menu toggle
-    const burger = document.querySelector('.burger');
-    const nav = document.querySelector('.nav-links');
-    const navLinks = document.querySelectorAll('.nav-links li');
+    // Event listeners
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+    }
+    if (darkModeToggleMobile) {
+        darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+    }
 
-    burger.addEventListener('click', () => {
-      // Toggle navigation
-      nav.classList.toggle('nav-active');
-      
-      // Animate links
-      navLinks.forEach((link, index) => {
-        if (link.style.animation) {
-          link.style.animation = '';
-        } else {
-          link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
-        }
-      });
-      
-      // Burger animation
-      burger.classList.toggle('toggle');
-    });
+    // Mobile menu functionality
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const mobileMenu = document.querySelector('.mobile-menu');
+
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
   </script>
 </body>
 </html>

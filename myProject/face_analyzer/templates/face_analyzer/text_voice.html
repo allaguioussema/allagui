@@ -176,61 +176,63 @@
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     {% csrf_token %}
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <!-- Logo -->
-                <a href="{% url 'face_analyzer:home' %}" class="flex items-center space-x-3">
-                    <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EmoReco Logo" class="h-10 w-10">
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">EmoReco</span>
-                </a>
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <nav class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <!-- Logo -->
+                    <a href="{% url 'face_analyzer:home' %}" class="flex items-center space-x-3">
+                        <img src="{% static 'face_analyzer/images/deep-learning.png' %}" alt="EmoReco Logo" class="h-10 w-10">
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">EmoReco</span>
+                    </a>
 
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'face_analyzer:home' %}" class="text-primary-500 font-medium">Home</a>
-                    <a href="{% url 'face_analyzer:index' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Facial Emotion Recognition</a>
-                    <a href="{% url 'face_analyzer:text_voice' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Text & Voice Emotion Recognition</a>
-                    
-                    <!-- Dark Mode Toggle -->
-                    <button id="darkModeToggle" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="{% url 'face_analyzer:home' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Home</a>
+                        <a href="{% url 'face_analyzer:index' %}" class="text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500 transition-colors">Facial Emotion Recognition</a>
+                        <a href="{% url 'face_analyzer:text_voice' %}" class="text-primary-500 font-medium">Text & Voice Emotion Recognition</a>
+                        
+                        <!-- Dark Mode Toggle -->
+                        <button id="darkModeToggle" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Dark Mode: Off
+                        </button>
+                        
+                        <!-- Logout Button -->
+                        <a href="{% url 'face_analyzer:logout' %}" class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <i class="ph ph-sign-out"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button class="mobile-menu-button p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                            <svg class="h-6 w-6 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu -->
+                <div class="mobile-menu hidden md:hidden py-4">
+                    <a href="{% url 'face_analyzer:home' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Home</a>
+                    <a href="{% url 'face_analyzer:index' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Facial Emotion Recognition</a>
+                    <a href="{% url 'face_analyzer:text_voice' %}" class="block py-2 text-primary-500 font-medium">Text & Voice Emotion Recognition</a>
+                    <button id="darkModeToggleMobile" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
                         Dark Mode: Off
                     </button>
-                    
-                    <!-- Logout Button -->
-                    <a href="{% url 'face_analyzer:logout' %}" class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <a href="{% url 'face_analyzer:logout' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
                         <i class="ph ph-sign-out"></i>
-                        <span>Logout</span>
+                        Logout
                     </a>
                 </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button class="mobile-menu-button p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
-                        <svg class="h-6 w-6 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
             </div>
-
-            <!-- Mobile Menu -->
-            <div class="mobile-menu hidden md:hidden py-4">
-                <a href="{% url 'face_analyzer:home' %}" class="block py-2 text-primary-500 font-medium">Home</a>
-                <a href="{% url 'face_analyzer:index' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Facial Emotion Recognition</a>
-                <a href="{% url 'face_analyzer:text_voice' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">Text & Voice Emotion Recognition</a>
-                <button id="darkModeToggleMobile" class="w-full text-left py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
-                    Dark Mode: Off
-                </button>
-                <a href="{% url 'face_analyzer:logout' %}" class="block py-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500">
-                    <i class="ph ph-sign-out"></i>
-                    Logout
-                </a>
-            </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="pt-20 container mx-auto px-4 py-8">
         <!-- Hero Section with Gradient Background -->
         <section class="relative overflow-hidden mb-16 rounded-3xl bg-gradient-to-r from-primary-500/10 via-purple-500/10 to-blue-500/10 dark:from-primary-500/20 dark:via-purple-500/20 dark:to-blue-500/20">
             <div class="absolute inset-0 bg-grid-pattern opacity-10"></div>
@@ -509,14 +511,22 @@
                         }
 
                         const data = await response.json();
-                        if (data.success) {
-                            showToast(data.message || 'Recording saved successfully!');
-                            if (data.emotions) {
-                                displayVoiceResults(data);
-                            }
-                        } else {
-                            throw new Error(data.error || 'Failed to save recording');
-                        }
+                        
+                        // Update results
+                        voiceEmotions.innerHTML = Object.entries(data.emotions)
+                            .sort(([, a], [, b]) => b - a)
+                            .map(([emotion, score]) => `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600 dark:text-gray-300">${emotion}</span>
+                                    <div class="w-2/3 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                                        <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-1000" 
+                                             style="width: ${score * 100}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-200">${(score * 100).toFixed(1)}%</span>
+                                </div>
+                            `).join('');
+
+                        voiceResults.classList.remove('hidden');
                     } catch (error) {
                         console.error('Voice recording error:', error);
                         showToast('Failed to save recording. Please try again.');
@@ -572,22 +582,6 @@
             }
         }
 
-        function displayVoiceResults(data) {
-            voiceResults.classList.remove('hidden');
-            voiceEmotions.innerHTML = Object.entries(data.emotions)
-                .sort(([, a], [, b]) => b - a)
-                .map(([emotion, score]) => `
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600 dark:text-gray-300">${emotion}</span>
-                        <div class="w-2/3 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
-                            <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-1000" 
-                                 style="width: ${score * 100}%"></div>
-                        </div>
-                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200">${(score * 100).toFixed(1)}%</span>
-                    </div>
-                `).join('');
-        }
-
         // Voice recording button click handler
         recordButton.addEventListener('click', async () => {
             if (!isRecording) {
@@ -600,40 +594,52 @@
         });
 
         // Dark mode toggle functionality
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            const text = `Dark Mode: ${isDark ? 'On' : 'Off'}`;
-            document.getElementById('darkModeToggle').textContent = text;
-            document.getElementById('darkModeToggleMobile').textContent = text;
-        }
-
         const darkModeToggle = document.getElementById('darkModeToggle');
         const darkModeToggleMobile = document.getElementById('darkModeToggleMobile');
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-        darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+        const html = document.documentElement;
 
-        // Mobile menu toggle
-        const burger = document.querySelector('.burger');
-        const nav = document.querySelector('.nav-links');
-        burger.addEventListener('click', () => {
-            nav.classList.toggle('nav-active');
-            burger.classList.toggle('toggle');
-        });
-
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-500';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(100%)';
-                setTimeout(() => toast.remove(), 500);
-            }, 3000);
+        // Function to update button text
+        function updateButtonText(isDark) {
+            const text = isDark ? 'Dark Mode: On' : 'Dark Mode: Off';
+            if (darkModeToggle) darkModeToggle.textContent = text;
+            if (darkModeToggleMobile) darkModeToggleMobile.textContent = text;
         }
 
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDark ? 'dark' : 'light');
+            updateButtonText(isDark);
+        }
+
+        // Initialize dark mode based on localStorage
+        if (localStorage.getItem('darkMode') === 'dark') {
+            html.classList.add('dark');
+            updateButtonText(true);
+        } else {
+            html.classList.remove('dark');
+            updateButtonText(false);
+        }
+
+        // Event listeners
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+        }
+        if (darkModeToggleMobile) {
+            darkModeToggleMobile.addEventListener('click', toggleDarkMode);
+        }
+
+        // Mobile menu functionality
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Text analysis functionality
         analyzeTextBtn.addEventListener('click', async () => {
             const text = textInput.value.trim();
             if (!text) {
@@ -694,6 +700,19 @@
                 `;
             }
         });
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-0 opacity-100 transition-all duration-500';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(100%)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
